@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goava — Klarna Q2 Market Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Source Sans 3', 'sans-serif'] },
+      colors: {
+        g: {
+          green:      '#0fa894',
+          'green-dk': '#0a6e61',
+          'green-lt': '#dbf2ef',
+          'green-bg': 'rgba(15,168,148,0.07)',
+          purple:     '#7969bf',
+          'purple-lt':'#ebe9f5',
+          'purple-dk':'#615499',
+          blue:       '#2962ff',
+          red:        '#e32445',
+          amber:      '#ffb300',
+          text:       '#212121',
+          muted:      '#6c6c6c',
+          border:     '#e9e9e9',
+          bg:         '#f4f4f4',
+        }
+      }
+    }
+  }
+}
+</script>
+<style>
+* { box-sizing: border-box; }
+body { font-family: 'Source Sans 3', sans-serif; overflow: hidden; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: #f4f4f4; }
+::-webkit-scrollbar-thumb { background: #d1d1d1; border-radius: 2px; }
+.tab-active { position: relative; color: #212121 !important; }
+.tab-active::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0; right: 0;
+  height: 2px;
+  background: #0fa894;
+  border-radius: 2px 2px 0 0;
+}
+
+#sidebar { transition: width 0.2s ease; overflow: hidden; }
+#sidebar.collapsed { overflow: visible; }
+
+/* Collapsed header: center logo, fade to expand icon on hover */
+#sidebar.collapsed #sb-header { justify-content: center; }
+#sidebar.collapsed .sb-logo-icon { transition: opacity 0.15s; }
+#sidebar.collapsed #sb-header:hover .sb-logo-icon { opacity: 0; }
+#sidebar.collapsed #sb-toggle {
+  position: absolute;
+  left: 50%; transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+#sidebar.collapsed #sb-header:hover #sb-toggle {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Nav flyout popup */
+.nav-flyout {
+  display: none;
+  position: absolute;
+  left: calc(100% + 8px);
+  top: -4px;
+  z-index: 200;
+  width: 248px;
+  background: white;
+  border: 1px solid #e9e9e9;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(33,33,33,0.12);
+  max-height: 320px;
+  overflow-y: auto;
+}
+/* Caret pointing left toward sidebar */
+.nav-flyout::before {
+  content: '';
+  position: absolute;
+  left: -7px; top: 14px;
+  border: 7px solid transparent;
+  border-right-color: #e9e9e9;
+  border-left-width: 0;
+}
+.nav-flyout::after {
+  content: '';
+  position: absolute;
+  left: -5px; top: 15px;
+  border: 6px solid transparent;
+  border-right-color: white;
+  border-left-width: 0;
+}
+#sidebar.collapsed .cr-flyout-trigger:hover .nav-flyout,
+#sidebar.collapsed .nav-flyout:hover { display: block; }
+
+/* Flyout item hover reveals pin + close actions */
+.flyout-item { position: relative; }
+.flyout-item .flyout-actions {
+  display: none;
+  position: absolute;
+  right: 8px; top: 50%;
+  transform: translateY(-50%);
+  gap: 2px;
+  align-items: center;
+}
+.flyout-item:hover .flyout-actions { display: flex; }
+
+/* Section header hover reveals more button */
+.section-more { opacity: 0; transition: opacity 0.15s; }
+.section-hdr:hover .section-more { opacity: 1; }
+.section-chevron { transition: transform 0.15s; }
+</style>
+</head>
+<body class="bg-white h-screen flex overflow-hidden" style="min-width:960px; font-size:13px; color:#212121">
+
+<!-- ════════════════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════════════════ -->
+<aside id="sidebar" class="flex flex-col h-screen bg-white border-r border-g-border shrink-0" style="width:255px">
+
+  <!-- Header -->
+  <div id="sb-header" class="flex items-center border-b border-g-border shrink-0 relative" style="height:53px; padding:0 12px; gap:8px;">
+    <!-- Logo icon always visible; badge only shown when collapsed -->
+    <div class="sb-logo-icon relative shrink-0">
+      <div class="flex items-center justify-center rounded" style="width:24px;height:24px;background:#0fa894">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+          <path d="M6 10.5C6 8.015 8.015 6 10.5 6C12.5 6 14.2 7.3 14.8 9.1H13C12.5 8.2 11.6 7.6 10.5 7.6C8.9 7.6 7.6 8.9 7.6 10.5C7.6 12.1 8.9 13.4 10.5 13.4C11.7 13.4 12.7 12.7 13.1 11.7H10.5V10.1H14.9C14.97 10.23 15 10.37 15 10.5C15 12.985 12.985 15 10.5 15C8.015 15 6 12.985 6 10.5Z" fill="white"/>
+        </svg>
+      </div>
+      <span id="sb-logo-badge" class="absolute -top-1.5 left-3 bg-g-red text-white rounded-full flex items-center justify-center" style="font-size:10px;min-width:16px;height:16px;padding:0 3px;display:none">12</span>
+    </div>
+
+    <!-- Brand text — hidden when collapsed -->
+    <span id="sb-brand" class="font-semibold flex-1 min-w-0 truncate" style="font-size:15px">Goava</span>
+
+    <!-- Notification bell with badge — hidden when collapsed -->
+    <div id="sb-bell" class="relative shrink-0">
+      <button class="p-1 rounded hover:bg-g-bg">
+        <svg width="20" height="20" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+      </button>
+      <span class="absolute -top-0.5 -right-0.5 bg-g-red text-white rounded-full flex items-center justify-center pointer-events-none" style="font-size:10px;min-width:16px;height:16px;padding:0 3px">12</span>
+    </div>
+
+    <!-- Toggle button — always visible -->
+    <button id="sb-toggle" class="p-1 rounded hover:bg-g-bg shrink-0" title="Toggle sidebar">
+      <svg id="sb-toggle-icon" width="20" height="20" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>
+    </button>
+  </div>
+
+  <div class="flex-1 overflow-y-auto overflow-x-visible">
+    <!-- Top nav -->
+    <div class="border-b border-g-border py-1">
+      <div class="px-2 py-0.5 relative cr-flyout-trigger">
+        <button class="nav-btn flex items-center gap-2 w-full px-2 py-2 rounded hover:bg-g-bg text-left">
+          <svg class="shrink-0" width="16" height="16" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          <span class="sb-text font-semibold text-g-muted" style="font-size:12px">New</span>
+        </button>
+        <div class="nav-flyout" style="width:auto;min-width:100px">
+          <div class="px-3 py-2.5"><span class="font-semibold text-g-text" style="font-size:12px">New</span></div>
+        </div>
+      </div>
+      <div class="px-2 py-0.5 relative cr-flyout-trigger">
+        <button class="nav-btn flex items-center gap-2 w-full px-2 py-2 rounded hover:bg-g-bg text-left">
+          <svg class="shrink-0" width="16" height="16" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <span class="sb-text font-semibold text-g-muted" style="font-size:12px">Search</span>
+        </button>
+        <div class="nav-flyout" style="width:auto;min-width:100px">
+          <div class="px-3 py-2.5"><span class="font-semibold text-g-text" style="font-size:12px">Search</span></div>
+        </div>
+      </div>
+      <div class="px-2 py-0.5 relative cr-flyout-trigger">
+        <button class="nav-btn flex items-center gap-2 w-full px-2 py-2 rounded hover:bg-g-bg text-left">
+          <svg class="shrink-0" width="16" height="16" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span class="sb-text font-semibold text-g-muted flex-1" style="font-size:12px">Ideal Customer Profiles</span>
+          <svg class="sb-text shrink-0" width="16" height="16" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+        </button>
+        <div class="nav-flyout" style="width:auto;min-width:160px">
+          <div class="px-3 py-2.5"><span class="font-semibold text-g-text" style="font-size:12px">Ideal Customer Profiles</span></div>
+        </div>
+      </div>
+      <div class="px-2 py-0.5 relative cr-flyout-trigger">
+        <button class="nav-btn flex items-center gap-2 w-full px-2 py-2 rounded hover:bg-g-bg text-left">
+          <svg class="shrink-0" width="16" height="16" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span class="sb-text font-semibold text-g-muted" style="font-size:12px">Prospecting Agent</span>
+        </button>
+        <div class="nav-flyout" style="width:auto;min-width:140px">
+          <div class="px-3 py-2.5"><span class="font-semibold text-g-text" style="font-size:12px">Prospecting Agent</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Expanded sections -->
+    <div id="sb-sections-expanded">
+
+      <!-- PINNED -->
+      <div class="sb-section py-1 border-t border-b border-g-border">
+        <div class="section-hdr flex items-center gap-1 pt-2 px-4 pb-1 cursor-pointer select-none" onclick="toggleSection(this)">
+          <span style="font-size:11px" class="font-semibold text-g-muted uppercase tracking-wider flex-1">Pinned</span>
+          <button class="section-more p-1 rounded hover:bg-g-border" onclick="event.stopPropagation()">
+            <svg width="14" height="14" fill="#6c6c6c" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+          </button>
+          <svg class="section-chevron shrink-0" width="14" height="14" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+        <div class="section-body">
+          <div class="px-2 py-0.5">
+            <button class="w-full text-left px-2 py-2 rounded bg-g-green-lt"><span style="font-size:12px" class="font-semibold text-g-green-dk">Klarna Q2 Market Brief</span></button>
+          </div>
+          <div class="px-2 py-0.5">
+            <button class="w-full text-left px-2 py-2 rounded hover:bg-g-bg"><span style="font-size:12px" class="font-semibold text-g-muted">Salesforce EMEA Brief</span></button>
+          </div>
+          <div class="px-2 py-0.5">
+            <button class="w-full text-left px-2 py-2 rounded hover:bg-g-bg"><span style="font-size:12px" class="font-semibold text-g-muted">Spotify Enterprise B2B</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPANY RESEARCH -->
+      <div class="sb-section py-1">
+        <div class="section-hdr flex items-center gap-1 pt-2 px-4 pb-1 cursor-pointer select-none" onclick="toggleSection(this)">
+          <span style="font-size:11px" class="font-semibold text-g-muted uppercase tracking-wider flex-1">Company Research</span>
+          <button class="section-more p-1 rounded hover:bg-g-border" onclick="event.stopPropagation()">
+            <svg width="14" height="14" fill="#6c6c6c" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+          </button>
+          <svg class="section-chevron shrink-0" style="transform:rotate(-90deg)" width="14" height="14" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+        <div class="section-body" style="display:none">
+          <div class="px-2 py-0.5">
+            <button class="w-full text-left px-2 py-2 rounded hover:bg-g-bg"><span style="font-size:12px" class="font-semibold text-g-muted">Salesforce EMEA Brief</span></button>
+          </div>
+          <div class="px-2 py-0.5">
+            <button class="w-full text-left px-2 py-2 rounded hover:bg-g-bg"><span style="font-size:12px" class="font-semibold text-g-muted">Specify Enterprise ICP</span></button>
+          </div>
+          <div class="px-2 py-0.5">
+            <button class="w-full text-left px-2 py-2 rounded hover:bg-g-bg"><span style="font-size:12px" class="font-semibold text-g-muted">Spotify New Market Entry</span></button>
+          </div>
+          <div class="px-2 py-0.5">
+            <button class="w-full text-left px-2 py-2 rounded hover:bg-g-bg"><span style="font-size:12px" class="font-semibold text-g-muted">ABB on-site visit follow-up</span></button>
+          </div>
+          <div class="px-2 py-0.5">
+            <button class="w-full text-left px-2 py-2 rounded hover:bg-g-bg"><span style="font-size:12px" class="font-semibold text-g-muted">Scania Intelligence Platform</span></button>
+          </div>
+          <div class="px-2 py-0.5">
+            <button class="w-full text-left px-2 py-2 rounded hover:bg-g-bg"><span style="font-size:12px" class="font-semibold text-g-muted">Volvo Group Expansion Plan</span></button>
+          </div>
+        </div>
+      </div>
+
+      <!-- OPPORTUNITIES -->
+      <div class="sb-section py-1">
+        <div class="section-hdr flex items-center gap-1 pt-2 px-4 pb-1 cursor-pointer select-none" onclick="toggleSection(this)">
+          <span style="font-size:11px" class="font-semibold text-g-muted uppercase tracking-wider flex-1">Opportunities</span>
+          <button class="section-more p-1 rounded hover:bg-g-border" onclick="event.stopPropagation()">
+            <svg width="14" height="14" fill="#6c6c6c" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+          </button>
+          <svg class="section-chevron shrink-0" style="transform:rotate(-90deg)" width="14" height="14" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+        <div class="section-body" style="display:none"></div>
+      </div>
+
+      <!-- SHARED WITH ME -->
+      <div class="sb-section py-1">
+        <div class="section-hdr flex items-center gap-1 pt-2 px-4 pb-1 cursor-pointer select-none" onclick="toggleSection(this)">
+          <span style="font-size:11px" class="font-semibold text-g-muted uppercase tracking-wider flex-1">Shared With Me</span>
+          <button class="section-more p-1 rounded hover:bg-g-border" onclick="event.stopPropagation()">
+            <svg width="14" height="14" fill="#6c6c6c" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+          </button>
+          <svg class="section-chevron shrink-0" style="transform:rotate(-90deg)" width="14" height="14" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+        <div class="section-body" style="display:none"></div>
+      </div>
+
+      <!-- GENERAL -->
+      <div class="sb-section py-1">
+        <div class="section-hdr flex items-center gap-1 pt-2 px-4 pb-1 cursor-pointer select-none" onclick="toggleSection(this)">
+          <span style="font-size:11px" class="font-semibold text-g-muted uppercase tracking-wider flex-1">General</span>
+          <button class="section-more p-1 rounded hover:bg-g-border" onclick="event.stopPropagation()">
+            <svg width="14" height="14" fill="#6c6c6c" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+          </button>
+          <svg class="section-chevron shrink-0" style="transform:rotate(-90deg)" width="14" height="14" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+        </div>
+        <div class="section-body" style="display:none"></div>
+      </div>
+
+    </div>
+
+    <!-- Collapsed sections (per-section icons + flyouts) -->
+    <div id="sb-sections-collapsed" class="hidden py-1">
+
+      <!-- PINNED icon + flyout -->
+      <div class="px-2 py-0.5 relative cr-flyout-trigger">
+        <button class="flex items-center justify-center w-full px-2 py-2 rounded hover:bg-g-bg">
+          <svg width="16" height="16" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 3H7a2 2 0 00-2 2v16l7-3 7 3V5a2 2 0 00-2-2z"/></svg>
+        </button>
+        <div class="nav-flyout">
+          <div class="px-4 py-2.5 border-b border-g-border">
+            <span class="font-semibold uppercase tracking-wider" style="font-size:11px;color:#212121">Pinned</span>
+          </div>
+          <div class="py-1">
+            <div class="flyout-item px-2 py-0.5">
+              <button class="w-full text-left px-2 py-2 rounded bg-g-green-lt pr-16"><span style="font-size:12px" class="font-semibold text-g-green-dk">Klarna Q2 Market Brief</span></button>
+              <div class="flyout-actions">
+                <button class="p-1 rounded hover:bg-g-green-lt" title="Unpin"><svg width="13" height="13" fill="none" stroke="#0a6e61" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 3H7a2 2 0 00-2 2v16l7-3 7 3V5a2 2 0 00-2-2z"/></svg></button>
+                <button class="p-1 rounded hover:bg-g-green-lt" title="Close"><svg width="13" height="13" fill="none" stroke="#0a6e61" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+              </div>
+            </div>
+            <div class="flyout-item px-2 py-0.5">
+              <button class="w-full text-left px-2 py-2 rounded hover:bg-g-bg pr-16"><span style="font-size:12px" class="font-semibold text-g-muted">Salesforce EMEA Brief</span></button>
+              <div class="flyout-actions">
+                <button class="p-1 rounded hover:bg-g-bg" title="Unpin"><svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 3H7a2 2 0 00-2 2v16l7-3 7 3V5a2 2 0 00-2-2z"/></svg></button>
+                <button class="p-1 rounded hover:bg-g-bg" title="Close"><svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+              </div>
+            </div>
+            <div class="flyout-item px-2 py-0.5 mb-1">
+              <button class="w-full text-left px-2 py-2 rounded hover:bg-g-bg pr-16"><span style="font-size:12px" class="font-semibold text-g-muted">Spotify Enterprise B2B</span></button>
+              <div class="flyout-actions">
+                <button class="p-1 rounded hover:bg-g-bg" title="Unpin"><svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 3H7a2 2 0 00-2 2v16l7-3 7 3V5a2 2 0 00-2-2z"/></svg></button>
+                <button class="p-1 rounded hover:bg-g-bg" title="Close"><svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- COMPANY RESEARCH icon + flyout -->
+      <div class="px-2 py-0.5 relative cr-flyout-trigger">
+        <button class="flex items-center justify-center w-full px-2 py-2 rounded bg-g-bg">
+          <svg width="16" height="16" fill="none" stroke="#0a6e61" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+        </button>
+        <div class="nav-flyout">
+          <div class="px-4 py-2.5 border-b border-g-border">
+            <span class="font-semibold uppercase tracking-wider" style="font-size:11px;color:#212121">Company Research</span>
+          </div>
+          <div class="py-1">
+            <div class="flyout-item px-2 py-0.5">
+              <button class="w-full text-left px-2 py-2 rounded hover:bg-g-bg pr-16"><span style="font-size:12px" class="font-semibold text-g-muted">Salesforce EMEA Brief</span></button>
+              <div class="flyout-actions">
+                <button class="p-1 rounded hover:bg-g-bg" title="Pin"><svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 22v-6m0 0l-3-3m3 3l3-3M7.5 7.5l9-9M3 21l18-18"/></svg></button>
+                <button class="p-1 rounded hover:bg-g-bg" title="Close"><svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+              </div>
+            </div>
+            <div class="flyout-item px-2 py-0.5">
+              <button class="w-full text-left px-2 py-2 rounded hover:bg-g-bg pr-16"><span style="font-size:12px" class="font-semibold text-g-muted">Specify Enterprise ICP</span></button>
+              <div class="flyout-actions">
+                <button class="p-1 rounded hover:bg-g-bg" title="Pin"><svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 22v-6m0 0l-3-3m3 3l3-3M7.5 7.5l9-9M3 21l18-18"/></svg></button>
+                <button class="p-1 rounded hover:bg-g-bg" title="Close"><svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+              </div>
+            </div>
+            <div class="flyout-item px-2 py-0.5">
+              <button class="w-full text-left px-2 py-2 rounded hover:bg-g-bg pr-16"><span style="font-size:12px" class="font-semibold text-g-muted">Spotify New Market Entry</span></button>
+              <div class="flyout-actions">
+                <button class="p-1 rounded hover:bg-g-bg" title="Pin"><svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 22v-6m0 0l-3-3m3 3l3-3M7.5 7.5l9-9M3 21l18-18"/></svg></button>
+                <button class="p-1 rounded hover:bg-g-bg" title="Close"><svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+              </div>
+            </div>
+            <div class="flyout-item px-2 py-0.5">
+              <button class="w-full text-left px-2 py-2 rounded hover:bg-g-bg pr-16"><span style="font-size:12px" class="font-semibold text-g-muted">ABB on-site visit follow-up</span></button>
+              <div class="flyout-actions">
+                <button class="p-1 rounded hover:bg-g-bg" title="Pin"><svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 22v-6m0 0l-3-3m3 3l3-3M7.5 7.5l9-9M3 21l18-18"/></svg></button>
+                <button class="p-1 rounded hover:bg-g-bg" title="Close"><svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+              </div>
+            </div>
+            <div class="flyout-item px-2 py-0.5">
+              <button class="w-full text-left px-2 py-2 rounded hover:bg-g-bg pr-16"><span style="font-size:12px" class="font-semibold text-g-muted">Scania Intelligence Platform</span></button>
+              <div class="flyout-actions">
+                <button class="p-1 rounded hover:bg-g-bg" title="Pin"><svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 22v-6m0 0l-3-3m3 3l3-3M7.5 7.5l9-9M3 21l18-18"/></svg></button>
+                <button class="p-1 rounded hover:bg-g-bg" title="Close"><svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+              </div>
+            </div>
+            <div class="flyout-item px-2 py-0.5 mb-1">
+              <button class="w-full text-left px-2 py-2 rounded hover:bg-g-bg pr-16"><span style="font-size:12px" class="font-semibold text-g-muted">Volvo Group Expansion Plan</span></button>
+              <div class="flyout-actions">
+                <button class="p-1 rounded hover:bg-g-bg" title="Pin"><svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 22v-6m0 0l-3-3m3 3l3-3M7.5 7.5l9-9M3 21l18-18"/></svg></button>
+                <button class="p-1 rounded hover:bg-g-bg" title="Close"><svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OPPORTUNITIES icon + flyout -->
+      <div class="px-2 py-0.5 relative cr-flyout-trigger">
+        <button class="flex items-center justify-center w-full px-2 py-2 rounded hover:bg-g-bg">
+          <svg width="16" height="16" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </button>
+        <div class="nav-flyout">
+          <div class="px-4 py-2.5 border-b border-g-border">
+            <span class="font-semibold uppercase tracking-wider" style="font-size:11px;color:#212121">Opportunities</span>
+          </div>
+          <div class="px-4 py-3 text-g-muted" style="font-size:12px">No opportunities yet</div>
+        </div>
+      </div>
+
+      <!-- SHARED WITH ME icon + flyout -->
+      <div class="px-2 py-0.5 relative cr-flyout-trigger">
+        <button class="flex items-center justify-center w-full px-2 py-2 rounded hover:bg-g-bg">
+          <svg width="16" height="16" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        </button>
+        <div class="nav-flyout">
+          <div class="px-4 py-2.5 border-b border-g-border">
+            <span class="font-semibold uppercase tracking-wider" style="font-size:11px;color:#212121">Shared With Me</span>
+          </div>
+          <div class="px-4 py-3 text-g-muted" style="font-size:12px">Nothing shared yet</div>
+        </div>
+      </div>
+
+      <!-- GENERAL icon + flyout -->
+      <div class="px-2 py-0.5 relative cr-flyout-trigger">
+        <button class="flex items-center justify-center w-full px-2 py-2 rounded hover:bg-g-bg">
+          <svg width="16" height="16" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
+        </button>
+        <div class="nav-flyout">
+          <div class="px-4 py-2.5 border-b border-g-border">
+            <span class="font-semibold uppercase tracking-wider" style="font-size:11px;color:#212121">General</span>
+          </div>
+          <div class="px-4 py-3 text-g-muted" style="font-size:12px">No items yet</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- User section — expanded -->
+  <div id="sb-user-expanded" class="border-t border-g-border px-4 py-3 shrink-0">
+    <div class="flex items-center gap-2">
+      <div class="relative w-8 h-8 rounded-full shrink-0 overflow-hidden flex items-center justify-center text-white font-semibold" style="background:#7969bf;font-size:11px;flex-shrink:0">
+        JB
+        <img src="https://www.figma.com/api/mcp/asset/cb2a581b-6c92-4b0c-b2e4-39b4c7af73cd" alt="" class="absolute inset-0 w-full h-full object-cover rounded-full" onerror="this.style.display='none'"/>
+      </div>
+      <div class="flex-1 min-w-0">
+        <div style="font-size:12px" class="font-semibold truncate">Johan Bollard</div>
+        <div style="font-size:11px" class="text-g-muted truncate">Sales Director</div>
+      </div>
+      <button class="p-1 rounded hover:bg-g-bg shrink-0">
+        <svg width="16" height="16" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- User section — collapsed (avatar only) -->
+  <div id="sb-user-collapsed" class="hidden border-t border-g-border py-3 shrink-0 flex-col items-center gap-2">
+    <button class="p-1 rounded hover:bg-g-bg">
+      <svg width="16" height="16" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+    </button>
+    <div class="relative w-8 h-8 rounded-full overflow-hidden flex items-center justify-center text-white font-semibold" style="background:#7969bf;font-size:11px">
+      JB
+      <img src="https://www.figma.com/api/mcp/asset/cb2a581b-6c92-4b0c-b2e4-39b4c7af73cd" alt="" class="absolute inset-0 w-full h-full object-cover rounded-full" onerror="this.style.display='none'"/>
+    </div>
+  </div>
+</aside>
+
+<!-- ════════════════════════════════════════════════
+     CONVERSATION WINDOW
+════════════════════════════════════════════════ -->
+<div class="flex flex-col flex-1 h-screen overflow-hidden bg-white">
+
+  <!-- Conversation header -->
+  <div class="flex items-center gap-2 px-5 border-b border-g-border shrink-0" style="height:49px">
+    <img src="https://www.figma.com/api/mcp/asset/aef86f88-4ea3-4c64-b5aa-6126f8bce37b" alt="" class="w-4 h-4 rounded object-cover" onerror="this.style.display='none'"/>
+    <button class="flex items-center gap-1 font-semibold hover:text-g-green" style="font-size:13px">
+      Klarna Q2 Market Brief
+      <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+    </button>
+    <div class="flex-1"></div>
+    <button class="p-1.5 rounded hover:bg-g-bg" title="Share">
+      <svg width="16" height="16" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/></svg>
+    </button>
+    <button class="p-1.5 rounded hover:bg-g-bg" title="More">
+      <svg width="16" height="16" fill="#6c6c6c" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+    </button>
+  </div>
+
+  <!-- Messages feed -->
+  <div class="flex-1 overflow-y-auto px-5 py-5 flex flex-col gap-5">
+
+    <!-- ── USER MESSAGE ──────────────────────────── -->
+    <div class="flex items-start gap-2.5 justify-end">
+      <div class="flex flex-col items-end gap-1" style="max-width:72%">
+        <div class="flex items-start gap-0">
+          <div class="bg-g-bg rounded-xl px-4 py-2.5">
+            <p style="font-size:14px" class="leading-snug">Find me any relavant sales signals for Klarna</p>
+          </div>
+          <div style="width:0;height:0;border-top:5px solid transparent;border-bottom:5px solid transparent;border-left:5px solid #f4f4f4;margin-top:10px;flex-shrink:0"></div>
+        </div>
+        <span style="font-size:11px" class="text-g-muted pr-2">8:49 PM · 20 May 2024</span>
+      </div>
+      <img src="https://www.figma.com/api/mcp/asset/9dcdd9c0-9770-4b1e-a701-51506c4af842" alt="" class="w-8 h-8 rounded-full object-cover shrink-0 mt-0.5"
+        onerror="this.style.background='#7969bf';this.removeAttribute('src')"/>
+    </div>
+
+    <!-- ── AI RESPONSE ───────────────────────────── -->
+    <div class="flex items-start gap-2.5">
+      <!-- AI avatar -->
+      <div class="w-8 h-8 rounded-full shrink-0 flex items-center justify-center mt-0.5" style="background:linear-gradient(135deg,#0fa894 0%,#7969bf 100%)">
+        <svg width="15" height="15" fill="white" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+
+      <!-- AI bubble -->
+      <div class="flex-1 min-w-0 flex flex-col gap-2">
+
+        <!-- Label row -->
+        <div class="flex items-center gap-2">
+          <span style="font-size:11px" class="font-semibold text-g-muted uppercase tracking-wider">AI Governed Response</span>
+          <!-- Feedback micro-toolbar -->
+          <div class="flex bg-white border border-g-border rounded shadow-sm overflow-hidden ml-auto">
+            <button class="flex items-center justify-center p-1.5 hover:bg-g-bg border-r border-g-border" title="Export to CRM">
+              <svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </button>
+            <button class="flex items-center justify-center p-1.5 bg-g-bg border-r border-g-border" title="Good">
+              <svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="2"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="2"/></svg>
+            </button>
+            <button class="flex items-center justify-center p-1.5 hover:bg-g-bg border-r border-g-border" title="Bad">
+              <svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M16 16s-1.5-2-4-2-4 2-4 2"/><line x1="9" y1="9" x2="9.01" y2="9" stroke-width="2"/><line x1="15" y1="9" x2="15.01" y2="9" stroke-width="2"/></svg>
+            </button>
+            <button class="flex items-center justify-center p-1.5 hover:bg-g-bg border-r border-g-border" title="Pin">
+              <svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+            </button>
+            <button class="flex items-center justify-center p-1.5 hover:bg-g-bg border-r border-g-border" title="Copy">
+              <svg width="13" height="13" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            </button>
+            <button class="flex items-center justify-center p-1.5 hover:bg-g-bg" title="More">
+              <svg width="13" height="13" fill="#6c6c6c" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- COMPANY CARD -->
+        <div class="border border-g-border rounded-xl overflow-hidden bg-white shadow-sm">
+
+          <!-- Company header -->
+          <div class="p-4 border-b border-g-border">
+            <div class="flex items-start gap-3">
+              <!-- Score ring -->
+              <div class="relative shrink-0" style="width:72px;height:72px">
+                <svg viewBox="0 0 72 72" width="72" height="72">
+                  <circle cx="36" cy="36" r="30" fill="none" stroke="#e9e9e9" stroke-width="5"/>
+                  <circle cx="36" cy="36" r="30" fill="none" stroke="#0fa894" stroke-width="5"
+                    stroke-dasharray="188.5" stroke-dashoffset="18.85"
+                    stroke-linecap="round" transform="rotate(-90 36 36)"/>
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="font-semibold" style="font-size:24px;line-height:1">90</span>
+                </div>
+              </div>
+              <!-- Info -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2 mb-1.5">
+                  <img src="https://www.figma.com/api/mcp/asset/aef86f88-4ea3-4c64-b5aa-6126f8bce37b" alt="" class="w-7 h-7 rounded object-cover shrink-0" onerror="this.style.background='#ff69ad';this.removeAttribute('src')"/>
+                  <h2 class="font-semibold" style="font-size:20px;line-height:1.2">Klarna Bank AB</h2>
+                </div>
+                <!-- Tags -->
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="flex items-center gap-1 bg-g-bg px-2.5 py-1 rounded-full" style="font-size:11px;font-weight:600">🇸🇪 Sweden</span>
+                  <span class="flex items-center gap-1 bg-g-green-lt px-2.5 py-1 rounded-full" style="font-size:11px;font-weight:600">
+                    <svg width="12" height="12" fill="none" stroke="#0a6e61" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    CRM Matched
+                  </span>
+                  <span class="bg-g-bg px-2.5 py-1 rounded-full" style="font-size:11px;font-weight:600">High-growth SaaS companies</span>
+                  <span class="bg-g-bg px-2.5 py-1 rounded-full" style="font-size:11px;font-weight:600">Stockholm-based companies</span>
+                </div>
+              </div>
+              <!-- Actions -->
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button class="flex items-center gap-1.5 bg-g-green-bg px-3 py-1.5 rounded-full font-semibold text-g-green-dk hover:bg-g-green-lt" style="font-size:12px">
+                  <svg width="14" height="14" fill="none" stroke="#0a6e61" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                  Contact
+                </button>
+                <button class="p-1.5 rounded hover:bg-g-bg">
+                  <svg width="16" height="16" fill="#6c6c6c" viewBox="0 0 20 20"><path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="flex border-b border-g-border bg-white overflow-x-auto" style="scrollbar-width:none">
+            <button class="tab-active flex flex-col items-center px-4 py-2.5 shrink-0" style="font-size:12px;font-weight:600">Overview</button>
+            <button class="px-4 py-2.5 font-semibold text-g-muted hover:text-g-text shrink-0" style="font-size:12px">News</button>
+            <button class="px-4 py-2.5 font-semibold text-g-muted hover:text-g-text shrink-0" style="font-size:12px">Financials</button>
+            <button class="px-4 py-2.5 font-semibold text-g-muted hover:text-g-text shrink-0" style="font-size:12px">Web</button>
+            <button class="flex items-center gap-1 px-4 py-2 font-semibold text-g-muted hover:text-g-text shrink-0" style="font-size:12px">
+              Ownership
+              <div class="flex -space-x-1 ml-0.5">
+                <img src="https://www.figma.com/api/mcp/asset/31ca7642-8148-4469-bad4-2b0dc55d93a7" class="w-4 h-4 rounded-full border border-white object-cover" alt=""/>
+                <div class="w-4 h-4 rounded-full border border-white bg-g-purple flex items-center justify-center text-white font-semibold" style="font-size:8px">5</div>
+              </div>
+            </button>
+            <button class="flex items-center gap-1 px-4 py-2 font-semibold text-g-muted hover:text-g-text shrink-0" style="font-size:12px">
+              People
+              <div class="flex -space-x-1 ml-0.5">
+                <img src="https://www.figma.com/api/mcp/asset/31ca7642-8148-4469-bad4-2b0dc55d93a7" class="w-4 h-4 rounded-full border border-white object-cover" alt=""/>
+                <img src="https://www.figma.com/api/mcp/asset/d91e563a-17ec-4a30-9c3d-f63eb577e7fa" class="w-4 h-4 rounded-full border border-white object-cover" alt=""/>
+                <div class="w-4 h-4 rounded-full border border-white bg-g-purple flex items-center justify-center text-white font-semibold" style="font-size:8px">5</div>
+              </div>
+            </button>
+            <button class="px-4 py-2.5 font-semibold text-g-muted hover:text-g-text shrink-0" style="font-size:12px">Social media</button>
+            <button class="px-4 py-2.5 font-semibold text-g-muted hover:text-g-text shrink-0" style="font-size:12px">Recruitments</button>
+            <button class="px-4 py-2.5 font-semibold text-g-muted hover:text-g-text shrink-0" style="font-size:12px">Trademarks</button>
+          </div>
+
+          <!-- Overview content: two columns -->
+          <div class="flex gap-0 divide-x divide-g-border">
+
+            <!-- LEFT: Description + Financials + Image -->
+            <div class="flex flex-col gap-4 p-4" style="flex:1;min-width:0">
+
+              <!-- Description -->
+              <div class="flex flex-col gap-1.5">
+                <span style="font-size:11px" class="font-semibold text-g-muted uppercase tracking-wider">Description</span>
+                <p style="font-size:13px" class="leading-5 text-g-text">Klarna Bank AB is a Swedish fintech company offering buy now, pay later, direct payments, and payment processing solutions. Founded in Stockholm in 2005, Klarna serves over 150M consumers across 45 markets, partnering with 500,000+ merchants globally.</p>
+                <button class="font-semibold text-g-blue text-left hover:underline" style="font-size:13px">Show more</button>
+              </div>
+
+              <!-- Financials -->
+              <div class="flex flex-col gap-2">
+                <span style="font-size:11px" class="font-semibold text-g-muted uppercase tracking-wider">Financials</span>
+                <div class="flex flex-col gap-1.5">
+                  <div class="flex items-center gap-3">
+                    <span style="font-size:12px;width:80px" class="font-semibold text-g-text shrink-0">Revenue</span>
+                    <span class="flex items-center gap-1" style="font-size:12px">
+                      <svg width="12" height="12" fill="none" stroke="#22c55e" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                      1,234,567 kSEK
+                    </span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span style="font-size:12px;width:80px" class="font-semibold text-g-text shrink-0">Employees</span>
+                    <span style="font-size:12px" class="text-g-text">4,247</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span style="font-size:12px;width:80px" class="font-semibold text-g-text shrink-0">Total assets</span>
+                    <span style="font-size:12px" class="text-g-text">57,488,562 kSEK</span>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span style="font-size:12px;width:80px" class="font-semibold text-g-text shrink-0">Yearly result</span>
+                    <span class="flex items-center gap-1" style="font-size:12px">
+                      <svg width="12" height="12" fill="none" stroke="#ef4444" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+                      -4,856,234 kSEK
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Klarna hero image -->
+              <div class="rounded-lg overflow-hidden" style="height:160px">
+                <img src="https://www.figma.com/api/mcp/asset/bd8cb087-642f-4b57-80f7-0686516ba31e" alt="Klarna" class="w-full h-full object-cover"
+                  onerror="this.parentElement.style.background='#ffd6e7';this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:42px;font-weight:700;color:#ff0080;letter-spacing:-2px\'>Klarna.</div>'"/>
+              </div>
+            </div>
+
+            <!-- RIGHT: Signal + Contacts -->
+            <div class="flex flex-col gap-4 p-4" style="flex:1;min-width:0">
+
+              <!-- Signal Identified -->
+              <div class="bg-g-purple-lt rounded-lg p-3 relative">
+                <div class="flex items-center gap-2 mb-2">
+                  <span style="font-size:11px" class="font-semibold text-g-purple-dk uppercase tracking-wider">Signal identified</span>
+                  <div class="flex-1"></div>
+                  <span style="font-size:11px" class="text-g-muted">3 minutes ago</span>
+                </div>
+                <div class="flex gap-2">
+                  <img src="https://www.figma.com/api/mcp/asset/d1eb34cb-7a5f-4a25-8aad-c5464eecf38f" alt="" class="rounded object-cover shrink-0" style="width:64px;height:64px" onerror="this.style.background='#c8b8f0';this.removeAttribute('src')"/>
+                  <div class="flex-1 min-w-0">
+                    <p style="font-size:13px" class="leading-5 text-g-text">
+                      <strong>David Lindqvist</strong> joins as VP of Strategic Accounts at Klarna Bank AB — "driving enterprise payment solutions across EMEA"…
+                    </p>
+                    <button class="font-semibold text-g-blue hover:underline" style="font-size:12px">Read more</button>
+                  </div>
+                </div>
+                <!-- Inline actions -->
+                <div class="absolute top-2.5 right-2.5 flex bg-white rounded border border-g-border shadow-sm overflow-hidden">
+                  <button class="p-1.5 hover:bg-g-bg border-r border-g-border" title="Sparkle">
+                    <svg width="14" height="14" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
+                  </button>
+                  <button class="p-1.5 hover:bg-g-bg" title="Export">
+                    <svg width="14" height="14" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Strategic Contacts -->
+              <div class="flex flex-col gap-2">
+                <span style="font-size:11px" class="font-semibold text-g-muted uppercase tracking-wider">Strategic Contacts</span>
+
+                <!-- Samantha -->
+                <div class="bg-g-green-lt rounded-lg p-3 flex flex-col gap-2">
+                  <div class="flex items-start gap-2">
+                    <div class="flex-1 min-w-0">
+                      <div style="font-size:13px" class="font-semibold text-g-text">Samantha Larkwood</div>
+                      <div style="font-size:12px" class="font-semibold text-g-text">Operations Executive</div>
+                      <div style="font-size:12px" class="text-g-muted">Operations (Decision maker)</div>
+                    </div>
+                    <img src="https://www.figma.com/api/mcp/asset/5c3d26db-2877-41d1-9fe6-76e101dbbddb" alt="" class="w-8 h-8 rounded-full object-cover shrink-0" onerror="this.style.background='#ccc';this.removeAttribute('src')"/>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <button class="flex items-center gap-1 bg-white px-2.5 py-1 rounded-full font-semibold text-g-green-dk hover:shadow-sm" style="font-size:11px">
+                      <svg width="12" height="12" fill="none" stroke="#0a6e61" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                      Call
+                    </button>
+                    <button class="bg-white p-1.5 rounded-full hover:shadow-sm" title="Message"><svg width="12" height="12" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg></button>
+                    <button class="bg-white p-1.5 rounded-full hover:shadow-sm" title="Email"><svg width="12" height="12" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></button>
+                    <button class="bg-white p-1.5 rounded-full hover:shadow-sm" title="LinkedIn"><svg width="12" height="12" fill="#6c6c6c" viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2" fill="#6c6c6c"/></svg></button>
+                  </div>
+                </div>
+
+                <!-- Marcus -->
+                <div class="bg-g-green-lt rounded-lg p-3 flex flex-col gap-2">
+                  <div class="flex items-start gap-2">
+                    <div class="flex-1 min-w-0">
+                      <div style="font-size:13px" class="font-semibold text-g-text">Marcus Granström</div>
+                      <div style="font-size:12px" class="font-semibold text-g-text">VP Enterprise Sales</div>
+                      <div style="font-size:12px" class="text-g-muted">Sales (Decision maker)</div>
+                    </div>
+                    <img src="https://www.figma.com/api/mcp/asset/882adec1-a4da-4f00-8851-b2b4e89a9fc8" alt="" class="w-8 h-8 rounded-full object-cover shrink-0" onerror="this.style.background='#ccc';this.removeAttribute('src')"/>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <button class="flex items-center gap-1 bg-white px-2.5 py-1 rounded-full font-semibold text-g-green-dk hover:shadow-sm" style="font-size:11px"><svg width="12" height="12" fill="none" stroke="#0a6e61" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>Call</button>
+                    <button class="bg-white p-1.5 rounded-full hover:shadow-sm"><svg width="12" height="12" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg></button>
+                    <button class="bg-white p-1.5 rounded-full hover:shadow-sm"><svg width="12" height="12" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></button>
+                    <button class="bg-white p-1.5 rounded-full hover:shadow-sm"><svg width="12" height="12" fill="#6c6c6c" viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2" fill="#6c6c6c"/></svg></button>
+                  </div>
+                </div>
+
+                <!-- Anna -->
+                <div class="bg-g-green-lt rounded-lg p-3 flex flex-col gap-2">
+                  <div class="flex items-start gap-2">
+                    <div class="flex-1 min-w-0">
+                      <div style="font-size:13px" class="font-semibold text-g-text">Anna Lindqvist</div>
+                      <div style="font-size:12px" class="font-semibold text-g-text">Chief Procurement Officer</div>
+                      <div style="font-size:12px" class="text-g-muted">Procurement (Budget holder)</div>
+                    </div>
+                    <img src="https://www.figma.com/api/mcp/asset/9dcdd9c0-9770-4b1e-a701-51506c4af842" alt="" class="w-8 h-8 rounded-full object-cover shrink-0" onerror="this.style.background='#ccc';this.removeAttribute('src')"/>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <button class="flex items-center gap-1 bg-white px-2.5 py-1 rounded-full font-semibold text-g-green-dk hover:shadow-sm" style="font-size:11px"><svg width="12" height="12" fill="none" stroke="#0a6e61" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>Call</button>
+                    <button class="bg-white p-1.5 rounded-full hover:shadow-sm"><svg width="12" height="12" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg></button>
+                    <button class="bg-white p-1.5 rounded-full hover:shadow-sm"><svg width="12" height="12" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></button>
+                    <button class="bg-white p-1.5 rounded-full hover:shadow-sm"><svg width="12" height="12" fill="#6c6c6c" viewBox="0 0 24 24"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2" fill="#6c6c6c"/></svg></button>
+                  </div>
+                </div>
+
+              </div>
+
+              <p style="font-size:12px" class="text-g-muted italic">AI Generated Response</p>
+            </div>
+          </div>
+        </div>
+        <!-- END company card -->
+
+      </div>
+      <!-- END AI bubble -->
+    </div>
+
+  </div>
+  <!-- END messages feed -->
+
+  <!-- ── ACTION BUTTONS ──────────────────────────── -->
+  <div class="flex items-center gap-2 px-5 py-2.5 border-t border-g-border shrink-0 bg-white">
+    <button class="flex items-center gap-1.5 bg-white border border-g-amber px-4 py-2 rounded font-semibold hover:bg-amber-50" style="font-size:13px">
+      <svg width="16" height="16" fill="none" stroke="#212121" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+      Export Signal to CRM
+    </button>
+    <button class="flex items-center gap-1.5 bg-white border border-g-amber px-4 py-2 rounded font-semibold hover:bg-amber-50" style="font-size:13px">
+      <svg width="16" height="16" fill="none" stroke="#212121" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+      Draft Email
+    </button>
+  </div>
+
+  <!-- ── CHAT INPUT ──────────────────────────────── -->
+  <div class="px-5 pt-1.5 pb-3 border-t border-g-border shrink-0 bg-white">
+    <div class="flex items-center gap-2" style="height:38px">
+      <div class="flex items-center flex-1 border border-g-green rounded gap-2 pl-3 pr-2 h-full">
+        <button class="shrink-0">
+          <svg width="18" height="18" fill="none" stroke="#0fa894" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        </button>
+        <input type="text" value="Could you help me  with a phone pitch for this company"
+          class="flex-1 outline-none bg-transparent" style="font-size:13px;caret-color:#0fa894"/>
+        <button class="p-1 rounded hover:bg-g-bg shrink-0">
+          <svg width="16" height="16" fill="none" stroke="#6c6c6c" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </button>
+      </div>
+      <button class="flex items-center justify-center rounded shrink-0 h-full px-4 hover:opacity-90" style="background:#ffb300">
+        <svg width="18" height="18" fill="none" stroke="#212121" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+      </button>
+    </div>
+  </div>
+
+</div>
+<!-- END conversation window -->
+
+<script>
+(function() {
+  const sidebar       = document.getElementById('sidebar');
+  const sbBrand       = document.getElementById('sb-brand');
+  const sbBell        = document.getElementById('sb-bell');
+  const sbToggleIcon  = document.getElementById('sb-toggle-icon');
+  const sbTexts       = document.querySelectorAll('.sb-text');
+  const sbSectionsExp = document.getElementById('sb-sections-expanded');
+  const sbSectionsCol = document.getElementById('sb-sections-collapsed');
+  const sbUserExp     = document.getElementById('sb-user-expanded');
+  const sbUserCol     = document.getElementById('sb-user-collapsed');
+  const sbLogoBadge   = document.getElementById('sb-logo-badge');
+  const navBtns       = document.querySelectorAll('.nav-btn');
+
+  let isCollapsed = false;
+
+  document.getElementById('sb-toggle').addEventListener('click', () => {
+    isCollapsed = !isCollapsed;
+
+    if (isCollapsed) {
+      sidebar.style.width = '48px';
+      sidebar.classList.add('collapsed');
+      sbBrand.style.display = 'none';
+      sbBell.style.display = 'none';
+      sbLogoBadge.style.display = 'flex';  // badge moves to logo when collapsed
+      sbTexts.forEach(el => el.style.display = 'none');
+      sbSectionsExp.style.display = 'none';
+      sbSectionsCol.style.display = 'block';
+      sbUserExp.style.display = 'none';
+      sbUserCol.style.display = 'flex';
+      navBtns.forEach(btn => {
+        btn.classList.add('justify-center');
+        btn.style.paddingLeft = '8px';
+        btn.style.paddingRight = '8px';
+      });
+      sbToggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7"/>';
+    } else {
+      sidebar.style.width = '255px';
+      sidebar.classList.remove('collapsed');
+      sbBrand.style.display = '';
+      sbBell.style.display = '';
+      sbLogoBadge.style.display = 'none';  // badge back on bell when expanded
+      sbTexts.forEach(el => el.style.display = '');
+      sbSectionsExp.style.display = '';
+      sbSectionsCol.style.display = 'none';
+      sbUserExp.style.display = '';
+      sbUserCol.style.display = 'none';
+      navBtns.forEach(btn => {
+        btn.classList.remove('justify-center');
+        btn.style.paddingLeft = '';
+        btn.style.paddingRight = '';
+      });
+      sbToggleIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>';
+    }
+  });
+})();
+
+function toggleSection(hdr) {
+  const wrapper = hdr.parentElement;
+  const body = hdr.nextElementSibling;
+  const chevron = hdr.querySelector('.section-chevron');
+  const isHidden = body.style.display === 'none';
+
+  // Close all sections
+  document.querySelectorAll('.sb-section').forEach(sec => {
+    const secBody = sec.querySelector('.section-body');
+    const secChevron = sec.querySelector('.section-chevron');
+    if (secBody) { secBody.style.display = 'none'; }
+    if (secChevron) { secChevron.style.transform = 'rotate(-90deg)'; }
+    sec.classList.remove('border-t', 'border-b', 'border-g-border');
+  });
+
+  // If it was closed, open it
+  if (isHidden) {
+    body.style.display = '';
+    chevron.style.transform = '';
+    wrapper.classList.add('border-t', 'border-b', 'border-g-border');
+  }
+}
+</script>
+
+</body>
+</html>
